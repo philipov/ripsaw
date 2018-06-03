@@ -1,6 +1,6 @@
-#-- ripsaw.request
+#-- ripsaw.reporter
 
-"""--- request support
+"""--- tasks to send events out
 """
 
 #----------------------------------------------------------------------------------------------#

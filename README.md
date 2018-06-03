@@ -4,9 +4,9 @@ cut logs into bits
 ---
 
 ### basic usage
-* `pip install ripsaw` 
-* `python -m ripsaw.new monitor.py`
-* `python monitor.py`
+* install module: `pip install ripsaw` 
+* blank script: `python -m ripsaw.new monitor.py`
+* start monitor: `python monitor.py`
 
 ##### example
 ```python
@@ -34,18 +34,22 @@ if __name__ == "__main__":
     * Monitor.watcher
     * Monitor.follower
     * Monitor.Prompter
+    * Monitor.Prompter.Event
 * Trigger
     * Regex
     * And
     * Or
-* Digest
-* Email
-* HTTP Request
+* Reporter
+    * Email
+    * HTTP
+    * SQL
+* Time
 
 ### features
 * statefile keeps track of scanned portion of file across restart
 * non-daemon mode with statefile
-* save own logfile
+* save logfile
+* compile digest reports
     
 ### dev
 * work: `python tests\data\monitor.py`

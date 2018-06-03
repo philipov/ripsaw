@@ -8,7 +8,7 @@ set PIP_CONFIG_FILE=C:\dev\secrets\pip.ini
 
 rem -- ToDo: macro to obtain __version__
 
-twine upload %PROJECT_PATH%\dist\ripsaw-0.0.4.tar.gz --comment "initial release"
+twine upload %PROJECT_PATH%\dist\ripsaw-0.0.5.tar.gz --comment "first working version"
 
 @popd
 @endlocal
