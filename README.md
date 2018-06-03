@@ -8,6 +8,27 @@ cut logs into bits
 * `python -m ripsaw.new monitor.py`
 * `python monitor.py`
 
+##### example
+```python
+# monitor.py
+from ripsaw import Monitor, Regex
+from pathlib import Path
+
+monitor = Monitor(
+    target      = Path('.'),
+    pattern     = '*.log',
+)
+
+@monitor.event(Regex('ERROR'))
+async def match_error(prompter):
+    async for match, line, ln in prompter:
+        print(f'found error on line {ln}: {line.strip()}')
+
+if __name__ == "__main__":
+    monitor.run()
+```
+
+
 ## classes
 * Monitor
     * Monitor.event
