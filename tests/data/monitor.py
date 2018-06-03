@@ -11,8 +11,6 @@ log.print('    ', term.pink('----'), ' ', term.yellow('ripsaw monitor'), ' ', te
 from ripsaw import Monitor, Regex, And, Or
 import re
 from pathlib import Path
-import curio
-from itertools import repeat
 
 #----------------------------------------------------------------------------------------------#
 

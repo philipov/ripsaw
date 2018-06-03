@@ -188,12 +188,12 @@ class Monitor:
 
                 queue               = curio.Queue()
                 queues[trigger]     = queue
-                prompter            = self.make_prompter(queue, trigger)
-                prompter2           = self.Prompter(queue, trigger)
+                #prompter            = self.make_prompter(queue, trigger)
+                prompter           = self.Prompter(queue, trigger)
 
                 ### supported parameters for event handlers:
                 kwargs              = dict()
-                kwargs['prompter']  = prompter2
+                kwargs['prompter']  = prompter
                 kwargs['trigger']   = trigger
                 kwargs['filename']  = file.name
                 kwargs['target']    = file.root
@@ -218,6 +218,8 @@ class Monitor:
         ''' Used by the follower task to subscribe its event handlers to its updates
             Curry a prompter so that event handler functions
                 don't have to carry around their trigger and queue.
+
+                DEPRECATED
         '''
 
         async def prompter():
@@ -232,6 +234,7 @@ class Monitor:
 
         return prompter
 
+    ######################
     class Prompter:
         ''' Used by the follower task to subscribe its event handlers to its updates
             Asynchronous Iterable implementation
