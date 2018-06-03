@@ -147,8 +147,9 @@ class Monitor:
         '''
         log.print(term.pink("begin watching for new files..."))
 
-        async with curio.TaskGroup() as followers :
-            prev_dirstate = set()
+        async with curio.TaskGroup() as followergroup :
+            followers       = dict()
+            prev_dirstate   = set()
             while True:
                 dirstate        = set(self.target.glob(self.pattern)) #todo: async
                 new_files       = dirstate - prev_dirstate
@@ -157,7 +158,8 @@ class Monitor:
                 if new_files:
                     ### create new followers
                     for file in sorted(new_files):
-                        follower                    = await followers.spawn( self.follower, file )
+                        follower        = await followergroup.spawn( self.follower, file )
+                        followers[file] = follower
 
                 log.print(
                     term.pink('scanned count:'), f' \n',
@@ -234,26 +236,32 @@ class Monitor:
 
         return prompter
 
+
     ######################
     class Prompter:
         ''' Used by the follower task to subscribe its event handlers to its updates
             Asynchronous Iterable implementation
         '''
 
+        __slots__ = ('queue', '_trigger')
         def __init__(self, queue:curio.Queue, trigger):
             self.queue      = queue
-            self.trigger    = trigger
+            self._trigger   = trigger
+
+        @property
+        def trigger(self):
+            return self._trigger
 
         def __aiter__(self):
-            ''' Prompter is an async iterator '''
+            ''' Prompter object is an async iterator '''
             return self
 
         async def __call__(self):
-            ''' Prompter is an async function '''
+            ''' Prompter object is an async function '''
             return await self.__anext__()
 
         async def __anext__(self):
-            ''' block the event handler; read the queue until a line activating the trigger is found
+            ''' async block until the queue produces a line that activates the trigger.
             '''
             while True:
                 line    = await self.queue.get()
