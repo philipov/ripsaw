@@ -97,11 +97,13 @@ class Monitor:
         ''' decorator to register a new event for a trigger
         '''
 
-        ### check for duplicate triggers
+        ### strings default to regex patterns
         if isinstance(trigger, str):
             trigger = Regex(trigger)
-            if trigger in self._events:
-                raise Monitor.DuplicateTrigger(trigger)
+
+        ### check for duplicate triggers
+        if trigger in self._events:
+            raise Monitor.DuplicateTrigger(trigger)
 
         def event_handler(handler):
             ''' decorate the handler coroutine '''
