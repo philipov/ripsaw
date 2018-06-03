@@ -12,8 +12,10 @@ from pprint import pformat
 from .trigger import Trigger, Regex
 from pathlib import Path
 from inspect import signature
+from functools import namedtuple
 
 import curio
+import signal
 
 ### type categories
 sequence    = (list, tuple)
@@ -131,19 +133,31 @@ class Monitor:
 
 
     #-------------------------------------------------------------------#
-    #todo: gracefully respond to kill signals
-
+    
     def run(self):
-        ''' start the monitor
+        ''' start the application
         '''
-        curio.run( self.watcher() )
+        curio.run( self.launcher() )
+
+    ######################
+    async def launcher(self):
+        ''' -- the root task
+            start a watcher, then waits for a shutdown signal
+        '''
+
+        watcher = await curio.spawn(self.watcher)
+
+        shutdown = curio.SignalEvent(signal.SIGINT, signal.SIGTERM)
+        await shutdown.wait()
+        raise SystemExit()
+
 
 
     ######################
     async def watcher( self ):
-        ''' -- the root task for the monitor
+        ''' -- monitor a directory
             watch a directory for files matching a pattern
-            spawn follower tasks as new files are found
+            spawn follower tasks when new files are found
         '''
         log.print(term.pink("begin watching for new files..."))
 
@@ -151,21 +165,23 @@ class Monitor:
             followers       = dict()
             prev_dirstate   = set()
             while True:
+
+                ### find new files
                 dirstate        = set(self.target.glob(self.pattern)) #todo: async
                 new_files       = dirstate - prev_dirstate
                 prev_dirstate   = dirstate
 
+                ### create new followers
                 if new_files:
-                    ### create new followers
                     for file in sorted(new_files):
                         follower        = await followergroup.spawn( self.follower, file )
                         followers[file] = follower
 
+                ### status report
                 log.print(
                     term.pink('scanned count:'), f' \n',
                     pformat({file.name: count for file, count in self._scannedcount.items()})
                 )
-
                 await curio.sleep( self.interval_scandir )
 
 
@@ -180,41 +196,40 @@ class Monitor:
         log.print(term.cyan('new file:'), f' {file.name}')
 
         async with curio.TaskGroup() as handlergroup:
-            self._scannedcount.setdefault(file, 0)
             handlers =  dict()
             queues  =   dict()
 
             ### create handler tasks
             for trigger, handler in self._events.items():
                 log.print(term.dcyan(f'spawn line handler for {file.name}:'), f' {trigger}')
-
                 queue               = curio.Queue()
                 queues[trigger]     = queue
-                #prompter            = self.make_prompter(queue, trigger)
-                prompter           = self.Prompter(queue, trigger)
+                prompter            = self.Prompter(queue, trigger, file)
 
                 ### supported parameters for event handlers:
                 kwargs              = dict()
                 kwargs['prompter']  = prompter
-                kwargs['trigger']   = trigger
-                kwargs['filename']  = file.name
-                kwargs['target']    = file.root
-                kwargs['queue']     = queue
 
                 handlers[trigger]   = await handlergroup.spawn(handler, kwargs)
 
-            ### push new lines to all handlers
+            ### follow
             async with curio.aopen( file, 'r' ) as fstream:
+                ### fast-forward through already-scanned lines todo
+                self._scannedcount.setdefault(file, 0)
+
+                ### tail the file and new push lines to handler queues
                 while True:
                     line = await fstream.readline()
                     if line:
                         log.print( term.dpink(file.name),' put ', term.dyellow(line.strip()) )
-                        for trigger, queue in queues.items():
-                            await queue.put(line)
                         self._scannedcount[file] += 1
+                        for trigger, queue in queues.items():
+                            await queue.put((line, self._scannedcount[file]))
 
 
-    ######################
+                            ######################
+
+
     @staticmethod
     def make_prompter( queue:curio.Queue, trigger ):
         ''' Used by the follower task to subscribe its event handlers to its updates
@@ -243,14 +258,41 @@ class Monitor:
             Asynchronous Iterable implementation
         '''
 
-        __slots__ = ('queue', '_trigger')
-        def __init__(self, queue:curio.Queue, trigger):
+        __slots__ = (
+            'queue',
+            '_trigger',
+            '_file',
+        )
+        def __init__(   self,
+                        queue:      curio.Queue,
+                        trigger:    Trigger,
+                        file:       Path,
+            ):
             self.queue      = queue
             self._trigger   = trigger
+            self._file      = file
 
         @property
         def trigger(self):
             return self._trigger
+
+        @property
+        def file(self):
+            return self._file
+
+        ######################
+        Event = namedtuple('Event', ('match', 'line', 'ln'))
+
+        async def __anext__(self):
+            ''' async block until the queue produces a line that activates the trigger.
+            '''
+            while True:
+                (line, ln)  = await self.queue.get()
+                match       = self.trigger.check(line)
+                if match is not None:
+                    return self.Event(match, line, ln)
+
+            raise StopAsyncIteration
 
         def __aiter__(self):
             ''' Prompter object is an async iterator '''
@@ -259,18 +301,6 @@ class Monitor:
         async def __call__(self):
             ''' Prompter object is an async function '''
             return await self.__anext__()
-
-        async def __anext__(self):
-            ''' async block until the queue produces a line that activates the trigger.
-            '''
-            while True:
-                line    = await self.queue.get()
-                match   = self.trigger.check(line)
-                if match is not None:
-                    # log.print(f'prompt for {trigger} {match} {line.strip()}')
-                    return match, line
-
-            raise StopAsyncIteration
 
 
 

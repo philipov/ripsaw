@@ -21,19 +21,19 @@ monitor = Monitor(
 
 ######################
 @monitor.event(Regex('ERROR'))
-async def match_error(prompter, filename, trigger):
-    log.print(term.green(f'starting match_error for {filename} ...'))
-    async for match, line in prompter:
-        log.print(filename, term.dgreen(f' {trigger}:'), f' {match} | ', term.green(line.strip()) )
+async def match_error(prompter):
+    log.print(term.green(f'starting match_error for {prompter.file.name} ...'))
+    async for event in prompter:
+        log.print(prompter.file.name, term.dgreen(f' {prompter.trigger}:'), f' {event.match} | ', term.green(event.line.strip()) )
         # await curio.sleep(monitor.interval_scanfile)
 
 
 ######################
 @monitor.event(Regex('aoeu'))
-async def match_aoeu(prompter, filename, trigger):
-    log.print(term.green(f'starting match_aoeu for {filename} ...'))
-    async for match, line in prompter:
-        log.print(filename, term.dgreen(f' {trigger}:'), f' {match} | ', term.green(line.strip()) )
+async def match_aoeu(prompter):
+    log.print(term.green(f'starting match_aoeu for {prompter.file.name} ...'))
+    async for event in prompter:
+        log.print(prompter.file.name, term.dgreen(f' {prompter.trigger}:'), f' {event.match} | ', term.green(event.line.strip()) )
 
 
 ######################
@@ -41,12 +41,11 @@ async def match_aoeu(prompter, filename, trigger):
         Regex('.*ERROR.*', re.IGNORECASE),
         Regex('.*aoeu.*'),
 ))
-async def match_and(prompter, filename, trigger):
-    log.print(term.green(f'starting match_and for {filename} ...'))
+async def match_and(prompter):
+    log.print(term.green(f'starting match_and for {prompter.file.name} ...'))
     while True:
-        match, line = await prompter()
-        log.print(filename, term.dgreen(f' {trigger}:'), f' {match} | ', term.green(line.strip()) )
-
+        event = await prompter()
+        log.print(prompter.file.name, term.dgreen(f' {prompter.trigger}:'), f' {event.match} | ', term.green(event.line.strip()) )
 
 
 ######################
