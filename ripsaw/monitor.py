@@ -7,6 +7,7 @@
 from powertools import AutoLogger
 log = AutoLogger()
 from powertools import term
+term.init_color()
 
 from .trigger import Trigger, Regex
 from pathlib import Path
@@ -30,7 +31,8 @@ class Monitor:
         '_target',
         '_pattern',
         '_savepath',
-        '_watchdir_interval',
+        '_interval_scandir',
+        '_interval_scanfile',
 
         '_events',
         '_file_queues',
@@ -41,11 +43,11 @@ class Monitor:
                  target:                Path = Path('.'),
                  pattern:                str = '*',
                  savepath:              Path = None,
-                 watchdir_interval:      int = 5
+                 interval_scandir:       int = 5,
+                 interval_scanfile:      int = 5,
                  ):
         ''' an instance of a monitor watches multiple files inside a single directory
         '''
-
         ### private state
         self._events            = dict()
         self._file_queues       = dict()
@@ -56,7 +58,8 @@ class Monitor:
         self._target            = target
         self._pattern           = pattern
         self._savepath          = savepath
-        self._watchdir_interval = watchdir_interval
+        self._interval_scandir  = interval_scandir
+        self._interval_scanfile = interval_scanfile
 
     @property
     def target(self) -> Path:
@@ -71,8 +74,12 @@ class Monitor:
         return self._savepath
 
     @property
-    def watchdir_interval(self) -> int:
-        return self._watchdir_interval
+    def interval_scandir( self ) -> int:
+        return self._interval_scandir
+
+    @property
+    def interval_scanfile( self ) -> int:
+        return self._interval_scanfile
 
 
     ######################
@@ -93,6 +100,11 @@ class Monitor:
 
     ######################
     def run(self):
+        log.print(f'    {term.pink("----")} {term.yellow("ripsaw")} {term.pink("----")}')
+        log.print(f'{term.white("begin monitoring on:")} {self.target}')
+        log.print(f'{term.white("file pattern:")}        {self.pattern}')
+        log.print(f'{term.white("savepath:")}            {self.savepath}')
+        log.print(f'{term.white("dir scan interval:")}   {self.interval_scandir}' )
         curio.run(self.watch_for_new())
 
 
@@ -107,11 +119,11 @@ class Monitor:
 
                 if new_files:
                     for file in new_files:
-                        log.print(f'{term.cyan("new file:")} {file}')
+                        log.print(f'{term.cyan("new file:")} {file.name}')
                         follower                    = await followers.spawn(self.follow_file, file)
                         self._followers[file]   = follower
 
-                await curio.sleep(self.watchdir_interval)
+                await curio.sleep( self.interval_scandir )
 
 
     ######################

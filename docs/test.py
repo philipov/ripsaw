@@ -12,7 +12,7 @@ async def watch_dir(self):
             dirstate = set(self.target.glob(self.pattern))
             print(dirstate)
 
-            await curio.sleep(self.watchdir_interval)
+            await curio.sleep( self.dirscan_interval )
 
 class options:
     target              = Path('.')
