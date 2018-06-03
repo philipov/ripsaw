@@ -1,7 +1,6 @@
-#-- smash.setup.arguments
+#-- ripsaw.__setup__
 
-'''--- Smart Shell
-    An integrated environment for reproducible research, development, testing, and production
+''' cut logs into bits
 '''
 
 from pathlib import Path
@@ -23,7 +22,7 @@ def collect_package_data( package_path ) :
 
 options = dict(
     name            = 'ripsaw',
-    version         = '0.0.0',
+    version         = '0.0.4',
     description     = __doc__,
     license         = "MIT License",
 
@@ -37,16 +36,10 @@ options = dict(
 
     zip_safe                = True,
     include_package_data    = True,
-    #package_data = {
-    #    'ripsaw' : collect_package_data( Path('ripsaw')/'templates' )
-    #},
-    entry_points = {
-        'console_scripts': [
-            'ripsaw         = ripsaw:console',
-        ],
-    },
+
     install_requires = [
         'powertools',       # std lib extension
+        'curio',            # async support
 
     ],
     classifiers = [

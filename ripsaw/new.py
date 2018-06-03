@@ -1,17 +1,10 @@
-#-- ripsaw.__init__
+#-- ripsaw.new
 
-"""--- RipSaw
-Cut Logs into Bits
+"""--- create a blank monitor script
 """
 
 #----------------------------------------------------------------------------------------------#
 
-from .__setup__ import __version__
-
-from .monitor import Monitor
-
-from .trigger import Trigger
-from .trigger import Regex
 
 
 #----------------------------------------------------------------------------------------------#

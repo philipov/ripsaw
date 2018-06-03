@@ -13,8 +13,11 @@ class Trigger:
     def __hash__(self):
         return hash(self.key)
 
+    def __repr__(self):
+        return f'<{self.__class__.__name__}: {self.key}>'
+
     def check(self, line):
-        ''' return None on no-match, or else return the match '''
+        ''' return None for no-match, or else return the match '''
         raise NotImplementedError
 
 

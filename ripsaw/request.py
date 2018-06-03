@@ -1,17 +1,10 @@
-#-- ripsaw.__init__
+#-- ripsaw.request
 
-"""--- RipSaw
-Cut Logs into Bits
+"""--- request support
 """
 
 #----------------------------------------------------------------------------------------------#
 
-from .__setup__ import __version__
-
-from .monitor import Monitor
-
-from .trigger import Trigger
-from .trigger import Regex
 
 
 #----------------------------------------------------------------------------------------------#
