@@ -7,10 +7,10 @@
 from powertools import AutoLogger
 log = AutoLogger()
 from powertools import term
-term.init_color()
 
 from .trigger import Trigger, Regex
 from pathlib import Path
+from inspect import signature
 
 import curio
 
@@ -61,6 +61,13 @@ class Monitor:
         self._interval_scandir  = interval_scandir
         self._interval_scanfile = interval_scanfile
 
+        log.print(f'{term.white("new monitor on:     ")} {self.target}')
+        log.print(f'{term.white("file pattern:")}        {self.pattern}')
+        log.print(f'{term.white("savepath:")}            {self.savepath}')
+        log.print(f'{term.white("dir scan interval:")}   {self.interval_scandir}' )
+        log.print(f'{term.white("file scan interval:")}  {self.interval_scandir}' )
+
+
     @property
     def target(self) -> Path:
         return self._target
@@ -84,32 +91,50 @@ class Monitor:
 
     ######################
     def event(self, trigger:triggerlike):
-        ''' decorate a coroutine that handles a particular trigger
-            add it to the list of registered events
+        ''' decorator to register a new event for a trigger
         '''
+
+        ### check for duplicate triggers
         if isinstance(trigger, str):
             trigger = Regex(trigger)
             if trigger in self._events:
                 raise Monitor.DuplicateTrigger(trigger)
+
         def event_handler(handler):
-            self._events[trigger] = handler
+            ''' decorate the handler coroutine '''
+
+            log.print(f'{term.dcyan("new handler:")}         {trigger} {term.dcyan("->")} <{handler.__class__.__name__} {handler.__name__}>')
+            async def wrapped_handler(kwargs):
+                ''' use the handler signature to construct its arglist by matching sig names to kwargs keys '''
+                sig = [ name
+                    for name, param in signature(handler).parameters.items()
+                        if  param.kind == param.POSITIONAL_ONLY
+                        or  param.kind == param.POSITIONAL_OR_KEYWORD
+                ]
+                newargs = list()
+                for name in sig:
+                    newargs.append(kwargs.get(name, None))
+
+                return await handler(*newargs)
+
+            ### register wrapped handler, don't change the deffed function
+            self._events[trigger] = wrapped_handler
+
+
             return handler
 
+        ####
         return event_handler
 
 
     ######################
     def run(self):
-        log.print(f'    {term.pink("----")} {term.yellow("ripsaw")} {term.pink("----")}')
-        log.print(f'{term.white("begin monitoring on:")} {self.target}')
-        log.print(f'{term.white("file pattern:")}        {self.pattern}')
-        log.print(f'{term.white("savepath:")}            {self.savepath}')
-        log.print(f'{term.white("dir scan interval:")}   {self.interval_scandir}' )
-        curio.run(self.watch_for_new())
+        log.print(f'{term.pink("begin watching for new files...")}')
+        curio.run( self.watcher() )
 
 
     ######################
-    async def watch_for_new(self):
+    async def watcher( self ):
         prev_dirstate = set()
         async with curio.TaskGroup() as followers :
             while True:
@@ -118,55 +143,71 @@ class Monitor:
                 prev_dirstate   = dirstate
 
                 if new_files:
-                    for file in new_files:
+                    ### create new followers
+                    for file in sorted(new_files):
                         log.print(f'{term.cyan("new file:")} {file.name}')
-                        follower                    = await followers.spawn(self.follow_file, file)
+                        follower                    = await followers.spawn( self.follower, file )
                         self._followers[file]   = follower
 
                 await curio.sleep( self.interval_scandir )
 
 
     ######################
-    async def follow_file( self, file:Path, ):
+    async def follower( self, file:Path ):
 
-        trigger_handlers = dict()
-        async with curio.TaskGroup() as handlers:
-            # setup handlers
+        handlers =  dict()
+        queues  =   dict()
+        async with curio.TaskGroup() as handlergroup:
+            ### setup handlers
             for trigger, handler in self._events.items():
-                log.print(f'{term.dcyan(f"spawn line handler for {file.name}:")} {trigger} : {handler}')
+                log.print(f'{term.dcyan(f"spawn line handler for {file.name}:")} {trigger} ')
 
-                handler_queue                           = curio.Queue()
-                self._file_queues[(file, trigger)]  = handler_queue
+                queue                               = curio.Queue()
+                queues[trigger]                     = queue
+                self._file_queues[(file, trigger)]  = queue
 
-                trigger_task        = await self.make_trigger( handler_queue, trigger )
-                # handlers[trigger]   = await handlers.spawn(handler, trigger_task)
+                prompter            = await self.make_prompter(queue, trigger)
 
-            # push new lines to all handlers
+                ### supported parameters for event handlers
+                kwargs              = dict()
+                kwargs['prompter']  = prompter
+                kwargs['trigger']   = trigger
+                kwargs['filename']  = file.name
+                kwargs['target']    = file.root
+                kwargs['queue']     = queue
+
+                handlers[trigger]   = await handlergroup.spawn(handler, kwargs)
+                #todo: determine which parameters to pass above by checking handler's signature; only do it once
+
+            ### push new lines to all handlers
             async with curio.aopen( file, 'r' ) as fstream:
-                #async for line in file:
                 while True:
                     line = await fstream.readline()
                     if line:
-                        log.print( f'{term.dpink(file.name)} {line.strip()}' )
+                        log.print( term.dpink(file.name),' ', term.dyellow(line.strip()) )
+                        for trigger, queue in queues.items():
+                            await queue.put(line)
 
 
     ######################
-    async def make_trigger(self, handler_queue, trigger):
+    async def make_prompter( self, queue:curio.Queue, trigger ):
+        ''' curry a prompter with the queue inside it by closure
+            pass it into the task that wants to wait for the queue to trigger
+        '''
         if False:
-            print(handler_queue)
+            print( queue )
             print(self)
 
-        async def trigger_task():
-            return "Trigger"
+        async def prompter():
+            ''' watch the queue until a trigger is activated '''
+            while True:
+                line    = await queue.get()
+                match   = trigger.check(line)
+                if match is not None:
+                    # log.print(f'prompt for {trigger} {match} {line.strip()}')
+                    return match, line
 
-        return trigger_task
-
-
-
-
-
-
-
+        return prompter
 
 
 #----------------------------------------------------------------------------------------------#

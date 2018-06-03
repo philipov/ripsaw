@@ -14,7 +14,7 @@ class Trigger:
         return hash(self.key)
 
     def __repr__(self):
-        return f'<{self.__class__.__name__}: {self.key}>'
+        return f'<{self.__class__.__name__}|{self.key}>'
 
     def check(self, line):
         ''' return None for no-match, or else return the match '''
@@ -37,6 +37,20 @@ class Regex(Trigger):
     def check(self, line):
         return self.regex.match(line)
 
+
+#----------------------------------------------------------------------------------------------#
+
+class And(Trigger):
+    ''' multiply a list of triggers
+    '''
+    ...
+
+#----------------------------------------------------------------------------------------------#
+
+class Or(Trigger):
+    ''' add a list of triggers
+    '''
+    ...
 
 
 #----------------------------------------------------------------------------------------------#
