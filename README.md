@@ -3,7 +3,7 @@ cut logs into bits
 
 ---
 
-## basic usage
+### basic usage
 * `pip install ripsaw` 
 * `python -m ripsaw.new monitor.py`
 * `python monitor.py`
@@ -28,8 +28,7 @@ if __name__ == "__main__":
     monitor.run()
 ```
 
-
-## classes
+### classes
 * Monitor
     * Monitor.event
     * Monitor.watcher
@@ -43,10 +42,12 @@ if __name__ == "__main__":
 * Email
 * HTTP Request
 
-## features
-* 
+### features
+* statefile keeps track of scanned portion of file across restart
+* non-daemon mode with statefile
+* save own logfile
     
-## dev
+### dev
 * work: `python tests\data\monitor.py`
 * test: `sh\win\test.bat`  
 * build: `sh\win\build.bat`
