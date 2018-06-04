@@ -17,23 +17,24 @@ When a line causes a trigger to activate, the event handler for that trigger is 
 # monitor.py
 from ripsaw import Monitor, Regex
 from pathlib import Path
+import re
 
 monitor = Monitor(
     target      = Path('.'),
     pattern     = '*.log',
 )
 
-@monitor.event(Regex('.*ERROR.*'))
-async def handle_error(prompter):
-    async for event in prompter:
-        print(f'found error on line {event.ln}: {event.line.strip()}, {event.match}')
-
 @monitor.event(Regex('.*INFO.*'))
 async def handle_info(prompter):
+    async for event in prompter:
+        print(f'found info on line {event.ln}: {event.line.strip()}, {event.match}')
+
+@monitor.event(Regex('.*ERROR.*', re.IGNORECASE))
+async def handle_error(prompter):
     while True:
         # do something before waiting
         event = await prompter
-        print(f'found info on line {event.ln}: {event.line.strip()}, {event.match}')
+        print(f'found error on line {event.ln}: {event.line.strip()}, {event.match}')
 
 if __name__ == "__main__":
     monitor.run()
