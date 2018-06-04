@@ -3,7 +3,7 @@ cut logs into bits
 
 ---
 
-Ripsaw is a log monitoring library that uses decorated coroutines to define event handlers bound to trigger conditions. 
+Ripsaw is a log monitoring framework that uses decorated coroutines to define event handlers bound to trigger conditions. 
 A task watches a directory for files matching a glob pattern and creates tasks to tail them line-by-line.
 When a line causes a trigger to activate, the event handler for that trigger is prompted to react to the event. 
 
