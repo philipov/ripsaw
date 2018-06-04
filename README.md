@@ -55,7 +55,7 @@ if __name__ == "__main__":
     * Email ^
     * HTTP ^
     * SQL ^
-* Time ^
+* Timer ^
 
 ^ = todo
 
