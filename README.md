@@ -3,12 +3,16 @@ cut logs into bits
 
 ---
 
+Ripsaw is a log monitoring library that uses decorated coroutines to define event handlers bound to trigger conditions. 
+A task watches a directory for files matching a glob pattern and creates tasks to tail them line-by-line.
+When a line causes a trigger to activate, the event handler for that trigger is prompted to react to the event. 
+
 ### basic usage
 * install module: `pip install ripsaw` 
 * blank script: `python -m ripsaw.new monitor.py`
 * start monitor: `python monitor.py`
 
-##### example
+##### example:
 ```python
 # monitor.py
 from ripsaw import Monitor, Regex
@@ -19,10 +23,17 @@ monitor = Monitor(
     pattern     = '*.log',
 )
 
-@monitor.event(Regex('ERROR'))
-async def match_error(prompter):
-    async for match, line, ln in prompter:
-        print(f'found error on line {ln}: {line.strip()}')
+@monitor.event(Regex('.*ERROR.*'))
+async def handle_error(prompter):
+    async for event in prompter:
+        print(f'found error on line {event.ln}: {event.line.strip()}, {event.match}')
+
+@monitor.event(Regex('.*INFO.*'))
+async def handle_info(prompter):
+    while True:
+        # do something before waiting
+        event = await prompter
+        print(f'found error on line {event.ln}: {event.line.strip()}, {event.match}')
 
 if __name__ == "__main__":
     monitor.run()
@@ -35,21 +46,35 @@ if __name__ == "__main__":
     * Monitor.follower
     * Monitor.Prompter
     * Monitor.Prompter.Event
+    * Monitor.Deferred ^
 * Trigger
     * Regex
     * And
     * Or
-* Reporter
-    * Email
-    * HTTP
-    * SQL
-* Time
+* Reporter ^
+    * Email ^
+    * HTTP ^
+    * SQL ^
+* Time ^
+
+^ = todo
 
 ### features
+* watch a directory for files matching a glob pattern
+* when a new file appears, follow it scanning for lines to push to a queue
+* prompters watch the queue until a trigger activates and send out an event
+* handler coroutines defined for each trigger implement how to react to events
+
+### todo
 * statefile keeps track of scanned portion of file across restart
-* non-daemon mode with statefile
 * save logfile
+* line history available to event handlers
+* multiline triggers
+* deferred handler subtask for obtaining lines after the event
 * compile digest reports
+* batch scanning on long intervals
+* recursive directory watch
+* non-daemon mode
     
 ### dev
 * work: `python tests\data\monitor.py`

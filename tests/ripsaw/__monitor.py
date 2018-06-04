@@ -8,7 +8,7 @@ import pytest
 #----------------------------------------------------------------------------------------------#
 
 #######################
-def test__monitor( path_env00, argv ) :
+def test__monitor( ) :
     from ripsaw.monitor import Monitor
 
     m = Monitor()

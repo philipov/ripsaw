@@ -219,7 +219,7 @@ class Monitor:
                 ### fast-forward through already-scanned lines todo
                 self._scannedcount.setdefault(file, 0)
 
-                ### tail the file and new push lines to handler queues
+                ### tail the file and push new lines to handler queues
                 while True:
                     line = await fstream.readline()
                     if line:
@@ -228,37 +228,14 @@ class Monitor:
                         for trigger, queue in queues.items():
                             await queue.put((line, self._scannedcount[file]))
 
-
-                            ######################
-
-
-    @staticmethod
-    def make_prompter( queue:curio.Queue, trigger ):
-        ''' Used by the follower task to subscribe its event handlers to its updates
-            Curry a prompter so that event handler functions
-                don't have to carry around their trigger and queue.
-
-                DEPRECATED
-        '''
-
-        async def prompter():
-            ''' block the event handler; read the queue until a line activating the trigger is found
-            '''
-            while True:
-                line    = await queue.get()
-                match   = trigger.check(line)
-                if match is not None:
-                    # log.print(f'prompt for {trigger} {match} {line.strip()}')
-                    return match, line
-
-        return prompter
-
-
     ######################
     class Prompter:
         ''' Used by the follower task to subscribe its event handlers to its updates
             Asynchronous Iterable implementation
         '''
+
+        Event = namedtuple('Event', ('match', 'line', 'ln'))
+
 
         __slots__ = (
             'queue',
@@ -282,8 +259,6 @@ class Monitor:
         def file(self):
             return self._file
 
-        ######################
-        Event = namedtuple('Event', ('match', 'line', 'ln'))
 
         async def __anext__(self):
             ''' async block until the queue produces a line that activates the trigger.

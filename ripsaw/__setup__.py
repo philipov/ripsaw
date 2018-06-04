@@ -22,7 +22,7 @@ def collect_package_data( package_path ) :
 
 options = dict(
     name            = 'ripsaw',
-    version         = '0.0.5',
+    version         = '0.0.6',
     description     = __doc__,
     license         = "MIT License",
 
