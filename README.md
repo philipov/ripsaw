@@ -82,6 +82,7 @@ if __name__ == "__main__":
 * test: `sh\win\test.bat`  
 * build: `sh\win\build.bat`
 * publish: `sh\win\publish_pypi.bat`
+* clean: `sh\win\clean.bat`
 
 
 ---
