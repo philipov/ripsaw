@@ -47,6 +47,7 @@ if __name__ == "__main__":
     * Monitor.follower
     * Monitor.Prompter
     * Monitor.Prompter.Event
+    * Monitor.Prompter.Defer ^
 * Trigger
     * Regex
     * And
@@ -56,7 +57,6 @@ if __name__ == "__main__":
     * HTTP ^
     * SQL ^
 * Timer ^
-* Deferred ^
 
 ^ = todo
 
