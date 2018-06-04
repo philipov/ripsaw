@@ -8,7 +8,7 @@ import shutil
 
 #----------------------------------------------------------------------------------------------#
 
-template_file = Path(__file__).resolve().parent / '__monitor__.py'
+template_file = Path(__file__).resolve().parent / 'new_monitor.py'
 
 def main(target:Path):
     '''copy template from package location to target location'''
