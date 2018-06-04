@@ -33,7 +33,7 @@ async def handle_info(prompter):
     while True:
         # do something before waiting
         event = await prompter
-        print(f'found error on line {event.ln}: {event.line.strip()}, {event.match}')
+        print(f'found info on line {event.ln}: {event.line.strip()}, {event.match}')
 
 if __name__ == "__main__":
     monitor.run()
