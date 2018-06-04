@@ -46,7 +46,7 @@ if __name__ == "__main__":
     * Monitor.follower
     * Monitor.Prompter
     * Monitor.Prompter.Event
-    * Monitor.Prompter.Defer ^
+    * Monitor.Prompter.defer ^
 * Trigger
     * Regex
     * And
