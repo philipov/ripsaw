@@ -1,4 +1,4 @@
-# ripsaw 0.0.5
+# ripsaw 0.0.7
 cut logs into bits
 
 ---
