@@ -28,8 +28,6 @@ async def handle_error(prompter):
     log.print(term.green(f'starting match_error for {prompter.file.name} ...'))
     async for event in prompter:
         log.print(prompter.file.name, term.dgreen(f' {prompter.trigger}:'), f' {event.match} | ', term.green(event.line.strip()) )
-        # await curio.sleep(monitor.interval_scanfile)
-
 
 ######################
 @monitor.event(Regex('aoeu'))
@@ -37,7 +35,6 @@ async def handle_aoeu(prompter):
     log.print(term.green(f'starting match_aoeu for {prompter.file.name} ...'))
     async for event in prompter:
         log.print(prompter.file.name, term.dgreen(f' {prompter.trigger}:'), f' {event.match} | ', term.green(event.line.strip()) )
-
 
 ######################
 @monitor.event( And(
@@ -49,7 +46,6 @@ async def handle_and(prompter):
     while True:
         event = await prompter()
         log.print(prompter.file.name, term.dgreen(f' {prompter.trigger}:'), f' {event.match} | ', term.green(event.line.strip()) )
-
 
 ######################
 if __name__ == "__main__":

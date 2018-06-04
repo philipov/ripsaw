@@ -225,12 +225,12 @@ class Monitor:
 
                 handlers[trigger]   = await handlergroup.spawn(handler, kwargs)
 
-            ### follow the file
+            ### process the file
             async with curio.aopen( file, 'r' ) as fstream:
                 ### fast-forward through already-scanned lines todo
                 self._scannedcount.setdefault(file, 0)
 
-                ### tail the file and push new lines to prompter queues
+                ### follow the file and push new lines to prompter queues
                 while True:
                     line = await fstream.readline()
                     if line:
