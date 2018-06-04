@@ -34,7 +34,7 @@ async def handle_error(prompter):
     while True:
         # do something before waiting
         event = await prompter
-        print(f'[{prompter.file.name}] found info on line {event.ln}: {event.line.strip()}, {event.match}')
+        print(f'[{prompter.file.name}] found error on line {event.ln}: {event.line.strip()}, {event.match}')
 
 if __name__ == "__main__":
     monitor.run()
