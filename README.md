@@ -4,7 +4,7 @@ cut logs into bits
 ---
 
 Ripsaw is a log monitoring framework that uses decorated coroutines to define event handlers bound to trigger conditions. 
-When ran, the monitor will watch a directory for files matching a glob file, and follows any files it finds line-by-line, searching for trigger conditions. When a trigger activates, its event handler is prompted to react to the event. 
+When ran, the monitor will watch a directory for files matching a glob pattern, and follows any files it finds line-by-line searching for trigger conditions. When a trigger activates, its event handler is prompted to react to the event. 
 
 ### basic usage
 * install module: `pip install ripsaw` 
