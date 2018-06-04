@@ -8,19 +8,28 @@ import pytest
 #----------------------------------------------------------------------------------------------#
 
 #######################
-def test__trigger() :
+def test__trigger():
     from ripsaw.trigger import Trigger
 
     t = Trigger()
-    # assert False
-
 
 #######################
-def test__regex() :
+def test__regex():
     from ripsaw.trigger import Regex
 
-    r = Regex('.*')
-    # assert False
+    t = Regex('.*')
+
+#######################
+def test__and():
+    from ripsaw.trigger import And
+
+    t = And()
+
+#######################
+def test__Or():
+    from ripsaw.trigger import Or
+
+    t = Or()
 
 
 #----------------------------------------------------------------------------------------------#

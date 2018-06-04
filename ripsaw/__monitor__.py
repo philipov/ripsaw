@@ -21,8 +21,8 @@ monitor = Monitor(
 
 ######################
 @monitor.event(Regex('.*'))
-async def match_any_line(prompter, filename, trigger):
-    log.print(term.green('starting match_any_line ...'))
+async def handle_all(prompter, filename, trigger):
+    log.print(term.green('starting handle_all ...'))
     while True:
         match, line = await prompter()
         log.print(filename, term.dgreen(f' event[{trigger}]:'), f' {match} | {line.strip()}' )

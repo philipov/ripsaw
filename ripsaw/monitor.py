@@ -28,7 +28,6 @@ class Monitor:
     class DuplicateTrigger(Exception):
         ''' attempted to add an event handler for the same trigger twice '''
 
-
     ######################
     __slots__ = (
         '_target',
@@ -53,7 +52,6 @@ class Monitor:
         self._events:dict       = dict()
         self._scannedcount:dict = dict()
 
-
         ### read-only config settings
         self._target            = target
         self._pattern           = pattern
@@ -66,7 +64,6 @@ class Monitor:
         log.print(f'{term.white("savepath:")}            {self.savepath}')
         log.print(f'{term.white("dir scan interval:")}   {self.interval_scandir}' )
         log.print(f'{term.white("file scan interval:")}  {self.interval_scandir}' )
-
 
     ######################
 
@@ -154,7 +151,6 @@ class Monitor:
         raise SystemExit()
 
 
-
     ######################
     async def watcher( self ):
         ''' -- monitor a directory
@@ -228,6 +224,7 @@ class Monitor:
                         for trigger, queue in queues.items():
                             await queue.put((line, self._scannedcount[file]))
 
+
     ######################
     class Prompter:
         ''' Used by the follower task to subscribe its event handlers to its updates
@@ -278,7 +275,6 @@ class Monitor:
         async def __call__(self):
             ''' Prompter object is an async function '''
             return await self.__anext__()
-
 
 
 #----------------------------------------------------------------------------------------------#

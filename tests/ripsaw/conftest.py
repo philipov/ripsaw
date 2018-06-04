@@ -15,8 +15,8 @@ log = logging.getLogger('conftest.unit')
 #----------------------------------------------------------------------------------------------#
 
 @pytest.fixture( scope="session" )
-def path_root_config(path_testdata):
-    return path_testdata/'__root__.yml'
+def path_script(path_testdata):
+    return path_testdata/'monitor.py'
 
 
 #----------------------------------------------------------------------------------------------#
