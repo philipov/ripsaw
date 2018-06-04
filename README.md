@@ -27,14 +27,14 @@ monitor = Monitor(
 @monitor.event(Regex('.*INFO.*'))
 async def handle_info(prompter):
     async for event in prompter:
-        print(f'found info on line {event.ln}: {event.line.strip()}, {event.match}')
+        print(f'[{prompter.file.name}] found info on line {event.ln}: {event.line.strip()}, {event.match}')
 
 @monitor.event(Regex('.*ERROR.*', re.IGNORECASE))
 async def handle_error(prompter):
     while True:
         # do something before waiting
         event = await prompter
-        print(f'found error on line {event.ln}: {event.line.strip()}, {event.match}')
+        print(f'[{prompter.file.name}] found info on line {event.ln}: {event.line.strip()}, {event.match}')
 
 if __name__ == "__main__":
     monitor.run()
