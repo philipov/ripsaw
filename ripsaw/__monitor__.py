@@ -1,16 +1,19 @@
 #-- __monitor__.py
 
-""" new ripsaw monitor script
+""" sample monitor script
 """
 
+### logging / color
 from powertools import AutoLogger
 log = AutoLogger()
 from powertools import term
 term.init_color()
 log.print('    ', term.pink('----'), ' ', term.yellow('ripsaw monitor'), ' ', term.pink('----'))
 
+### imports
 from ripsaw import Monitor, Regex
 from pathlib import Path
+import re
 
 #----------------------------------------------------------------------------------------------#
 
@@ -20,13 +23,18 @@ monitor = Monitor(
 )
 
 ######################
-@monitor.event(Regex('.*'))
-async def handle_all(prompter, filename, trigger):
-    log.print(term.green('starting handle_all ...'))
+@monitor.event(Regex('.*INFO.*'))
+async def handle_info(prompter):
+    async for event in prompter:
+        log.print(f'[{prompter.file.name}] found info on line {event.ln}: {event.line.strip()}, {event.match}')
+
+
+@monitor.event(Regex('.*ERROR.*', re.IGNORECASE))
+async def handle_error(prompter):
     while True:
-        match, line = await prompter()
-        log.print(filename, term.dgreen(f' event[{trigger}]:'), f' {match} | {line.strip()}' )
-        # await curio.sleep(monitor.interval_scanfile)
+        # do something before waiting
+        event = await prompter()
+        log.print(f'[{prompter.file.name}] found error on line {event.ln}: {event.line.strip()}, {event.match}')
 
 
 ######################

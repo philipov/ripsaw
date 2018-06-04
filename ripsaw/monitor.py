@@ -1,6 +1,14 @@
-#-- ripsaw.run
+#-- ripsaw.monitor
 
-"""--- application loop
+""" Monitor class
+    Monitor.event handler decorator
+    Monitor.run method
+    Monitor.launcher task
+    Monitor.watcher task
+    Monitor.follower task
+    Monitor.Prompter async iterator
+    Monitor.Prompter.Event datatype
+
 """
 
 #from powertools import export
@@ -24,6 +32,11 @@ triggerlike = (Trigger, str)
 #----------------------------------------------------------------------------------------------#
 
 class Monitor:
+    ''' A class to encapsulate an instance of the application.
+        A user wishing to modify the internals of the monitor
+            can subclass Monitor and override just the pieces
+            they wish to extend, and the rest of the system will use it
+    '''
 
     class DuplicateTrigger(Exception):
         ''' attempted to add an event handler for the same trigger twice '''
@@ -48,6 +61,7 @@ class Monitor:
                  ):
         ''' an instance of a monitor watches multiple files inside a single directory
         '''
+
         ### private state
         self._events:dict       = dict()
         self._scannedcount:dict = dict()
