@@ -11,22 +11,24 @@
 
 """
 
-#from powertools import export
+### logging / color
 from powertools import AutoLogger
 log = AutoLogger()
 from powertools import term
 from pprint import pformat
 
-from .trigger import Trigger, Regex
+### imports
+import signal
+import curio
+
 from pathlib import Path
 from inspect import signature
 from functools import namedtuple
 
-import curio
-import signal
+from .trigger import Trigger, Regex
 
-### type categories
-sequence    = (list, tuple)
+### type annotation categories
+patternlike = (tuple, str)
 triggerlike = (Trigger, str)
 
 #----------------------------------------------------------------------------------------------#
@@ -54,7 +56,7 @@ class Monitor:
     )
     def __init__(self, *,
                  target:                Path = Path('.'),
-                 pattern:                str = '*',
+                 pattern:        patternlike = '*',
                  savepath:              Path = None,
                  interval_scandir:       int = 5,
                  interval_scanfile:      int = 5,
@@ -86,7 +88,7 @@ class Monitor:
         return self._target
 
     @property
-    def pattern(self) -> sequence:
+    def pattern(self) -> patternlike:
         return self._pattern
 
     @property
@@ -178,7 +180,7 @@ class Monitor:
             prev_dirstate   = set()
             while True:
 
-                ### find new files
+                ### find new files todo: if pattern is a tuple, its elements are patterns
                 dirstate        = set(self.target.glob(self.pattern)) #todo: async
                 new_files       = dirstate - prev_dirstate
                 prev_dirstate   = dirstate
@@ -201,9 +203,8 @@ class Monitor:
     async def follower( self, file:Path ):
         ''' -- monitor a file
             spawn new instances of the registered event handlers
-            tail the file and whenever new lines come in,
-                dispatch them to the queues that are being
-                watched by the prompter tasks for each handler.
+            tail the file, whenever new lines come in,
+                use queues to dispatch them to the prompter tasks for each handler.
         '''
         log.print(term.cyan('new file:'), f' {file.name}')
 
@@ -224,12 +225,12 @@ class Monitor:
 
                 handlers[trigger]   = await handlergroup.spawn(handler, kwargs)
 
-            ### follow
+            ### follow the file
             async with curio.aopen( file, 'r' ) as fstream:
                 ### fast-forward through already-scanned lines todo
                 self._scannedcount.setdefault(file, 0)
 
-                ### tail the file and push new lines to handler queues
+                ### tail the file and push new lines to prompter queues
                 while True:
                     line = await fstream.readline()
                     if line:
@@ -241,8 +242,10 @@ class Monitor:
 
     ######################
     class Prompter:
-        ''' Used by the follower task to subscribe its event handlers to its updates
-            Asynchronous Iterable implementation
+        ''' -- read the queue and wait until the trigger fires
+            used by the follower task to subscribe its event handlers to line updates
+            asynchronous Iterator; may be directly called to get next
+            there is no way to reach StopAsyncIteration at the moment
         '''
 
         Event = namedtuple('Event', ('match', 'line', 'ln'))
