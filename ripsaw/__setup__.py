@@ -22,7 +22,7 @@ def collect_package_data( package_path ) :
 
 options = dict(
     name            = 'ripsaw',
-    version         = '0.0.6',
+    version         = '0.0.7',
     description     = __doc__,
     license         = "MIT License",
 
@@ -38,9 +38,8 @@ options = dict(
     include_package_data    = True,
 
     install_requires = [
-        'powertools',       # std lib extension
+        'powertools',       # basic utilities
         'curio',            # async support
-
     ],
     classifiers = [
         'Environment :: Console',
