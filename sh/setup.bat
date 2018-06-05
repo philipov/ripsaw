@@ -3,7 +3,7 @@
 rem ---------------------------------
 
 set THIS_PATH=%~dp0
-set PROJECT_PATH=%THIS_PATH%..\..
+set PROJECT_PATH=%THIS_PATH%..
 set PROJECT_NAME=ripsaw
 
 set PYTHONPATH=%PROJECT_PATH;%PYTHONPATH%
@@ -14,7 +14,7 @@ rem ---------------------------------
 
 call sh\win\test
 pip uninstall %PROJECT_NAME% --yes --verbose
-pip install -e %PROJECT_PATH% --verbose
+pip install %PROJECT_PATH% --verbose
 
 
 rem ---------------------------------

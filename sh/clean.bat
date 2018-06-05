@@ -1,5 +1,5 @@
 @setlocal
-@pushd %~dp0../..
+@pushd %~dp0..
 @ECHO off
 rem ---------------------------------
 

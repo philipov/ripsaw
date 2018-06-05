@@ -1,4 +1,4 @@
-#-- __monitor__.py
+#-- monitor.py
 
 """ sample monitor script
 """

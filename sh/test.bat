@@ -4,7 +4,7 @@ cls
 rem ---------------------------------
 
 set THIS_PATH=%~dp0
-set PROJECT_PATH=%THIS_PATH%..\..
+set PROJECT_PATH=%THIS_PATH%..
 
 set TESTS_PATH=%PROJECT_PATH%\tests
 set TMP_PATH=%TESTS_PATH%\__tmp__

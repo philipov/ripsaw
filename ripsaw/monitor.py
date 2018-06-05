@@ -35,13 +35,14 @@ triggerlike = (Trigger, str)
 
 class Monitor:
     ''' A class to encapsulate an instance of the application.
-        A user wishing to modify the internals of the monitor
-            can subclass Monitor and override just the pieces
-            they wish to extend, and the rest of the system will use it
+        A user wishing to modify the internals of the monito can subclass Monitor,
+            override just the pieces they wish to extend,
+            and the rest of the system will use it
     '''
 
     class DuplicateTrigger(Exception):
-        ''' attempted to add an event handler for the same trigger twice '''
+        ''' attempted to add an event handler for the same trigger twice
+        '''
 
     ######################
     __slots__ = (
@@ -54,13 +55,13 @@ class Monitor:
         '_events',
         '_scannedcount',
     )
-    def __init__(self, *,
-                 target:                Path = Path('.'),
-                 pattern:        patternlike = '*',
-                 savepath:              Path = None,
-                 interval_scandir:       int = 5,
-                 interval_scanfile:      int = 5,
-                 ):
+    def __init__(   self, *,
+                    target:                Path = Path('.'),
+                    pattern:        patternlike = '*.log',
+                    savepath:              Path = None,
+                    interval_scandir:       int = 5,
+                    interval_scanfile:      int = 5,
+        ):
         ''' an instance of a monitor watches multiple files inside a single directory
         '''
 
@@ -106,7 +107,11 @@ class Monitor:
 
     #-------------------------------------------------------------------#
 
-    def event(self, trigger:triggerlike):
+    def event(  self,
+                trigger:    triggerlike,
+                *,
+                name:       str = None,
+        ):
         ''' decorator to register a new event for a trigger
         '''
 

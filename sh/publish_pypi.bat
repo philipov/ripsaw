@@ -2,7 +2,7 @@
 @ECHO off
 
 set THIS_PATH=%~dp0
-set PROJECT_PATH=%THIS_PATH%..\..
+set PROJECT_PATH=%THIS_PATH%..
 set PIP_CONFIG_FILE=C:\dev\secrets\pip.ini
 @pushd %PROJECT_PATH%
 

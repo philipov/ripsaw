@@ -3,7 +3,7 @@
 rem ---------------------------------
 
 set THIS_PATH=%~dp0
-set PROJECT_PATH=%THIS_PATH%..\..
+set PROJECT_PATH=%THIS_PATH%..
 set PROJECT_NAME=ripsaw
 
 set PYTHONPATH=%PROJECT_PATH%;%PYTHONPATH%

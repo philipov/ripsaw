@@ -3,7 +3,7 @@ cut logs into bits
 
 ---
 
-Ripsaw is a log monitoring framework that uses decorated coroutines to define event handlers bound to trigger conditions. 
+Ripsaw is a log monitoring framework that allows the the user to create a script containing decorated coroutines that define event handlers bound to trigger conditions. 
 When ran, the monitor will watch a directory for files matching a glob pattern, and follows any files it finds line-by-line searching for trigger conditions. When a trigger activates, its event handler is prompted to react to the event. 
 
 ### basic usage
@@ -68,20 +68,20 @@ if __name__ == "__main__":
 ### todo
 * statefile keeps track of scanned portion of file across restart
 * save logfile
-* line history available to event handlers
-* multiline triggers
-* deferred handler subtask for obtaining lines after the event
-* compile digest reports
+* gracefully cancel tasks if file is deleted during monitoring
+* compile report digests
 * batch scanning on long intervals
+* line history available to event handlers
+* deferred handler subtask for obtaining lines after the event
+* multiline triggers
 * recursive directory watch
 * non-daemon mode
-    
+
 ### dev
 * work: `python tests\data\monitor.py`
-* test: `sh\win\test.bat`  
-* build: `sh\win\build.bat`
-* publish: `sh\win\publish_pypi.bat`
-* clean: `sh\win\clean.bat`
-
+* test: `sh\test.bat`  
+* build: `sh\build.bat`
+* publish: `sh\publish_pypi.bat`
+* clean: `sh\clean.bat`
 
 ---

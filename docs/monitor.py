@@ -18,7 +18,7 @@ import re
 #----------------------------------------------------------------------------------------------#
 
 monitor = Monitor(
-    target      = Path(__file__).resolve().parent,
+    target      = Path(__file__).resolve().parent[1] / 'tests' / 'data',
     pattern     = '*.log',
 )
 

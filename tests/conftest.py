@@ -22,13 +22,12 @@ log = logging.getLogger('conftest')
 #----------------------------------------------------------------------------------------------#
 
 def prepare_testdata( path_destination:Path ):
-    testdata_source = Path(__file__).parents[0] / 'testdata'
-    testdata_temp   = path_destination / 'testdata'
+    testdata_source = Path(__file__).parents[0] / 'data'
+    testdata_temp   = path_destination / 'data'
     shutil.copytree( str(testdata_source), str(testdata_temp) )
 
     # time.sleep(1)
     return testdata_temp
-
 
 @pytest.fixture(scope="session")
 def path_testdata( tmpdir_factory ):
