@@ -122,7 +122,7 @@ def test__watcher(path_testdata, path_log1, path_log2):
     assert event_count['and']   == 2
     assert event_count['error'] == 1
 
-    assert False
+    # assert False
 
 
 #----------------------------------------------------------------------------------------------#
