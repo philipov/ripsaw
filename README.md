@@ -1,23 +1,9 @@
 # ripsaw 0.0.7
-cut logs into bits
-
----
 
 Ripsaw is a log monitoring framework that allows the the user to create a script containing decorated coroutines that define event handlers bound to trigger conditions. 
 When ran, the monitor will watch a directory for files matching a glob pattern, and follows any files it finds line-by-line searching for trigger conditions. When a trigger activates, its event handler is prompted to react to the event. 
 
-### basic usage
-* install module: `pip install ripsaw` 
-* blank script: `python -m ripsaw.new monitor.py`
-* start monitor: `python monitor.py`
-
-###### dev
-* scratch: `python docs\monitor.py`
-* test: `sh\test.bat`  
-* build: `sh\build.bat`
-* publish: `sh\publish_pypi.bat`
-* clean: `sh\clean.bat`
-
+---
 ```python
 # monitor.py
 from ripsaw import Monitor, Regex
@@ -45,6 +31,21 @@ if __name__ == "__main__":
     monitor.run()
 ```
 
+---
+### getting started
+* install module: `pip install ripsaw` 
+* blank script: `python -m ripsaw.new monitor.py`
+* start monitor: `python monitor.py`
+
+### dev
+* example: `python docs\monitor.py`
+* test: `sh\test.bat`  
+* build: `sh\build.bat`
+* publish: `sh\publish_pypi.bat`
+* clean: `sh\clean.bat`
+
+
+---
 ### package contents
 * Monitor
     * Monitor.event
@@ -65,13 +66,13 @@ if __name__ == "__main__":
 
 ^ = todo
 
-##### features
+#### features
 * watch a directory for files matching a glob pattern
 * when a new file appears, follow it scanning for lines to push to a queue
 * prompters watch the queue until a trigger activates and send out an event
 * handler coroutines defined for each trigger implement how to react to events
 
-##### todo
+#### todo
 * statefile keeps track of scanned portion of file across restart
 * save logfile
 * gracefully cancel tasks if file is deleted during monitoring
