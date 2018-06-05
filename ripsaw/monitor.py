@@ -35,7 +35,7 @@ triggerlike = (Trigger, str)
 
 class Monitor:
     ''' A class to encapsulate an instance of the application.
-        A user wishing to modify the internals of the monito can subclass Monitor,
+        A user wishing to modify the application should subclass Monitor
             override just the pieces they wish to extend,
             and the rest of the system will use it
     '''
@@ -255,7 +255,7 @@ class Monitor:
 
         Event = namedtuple('Event', ('match', 'line', 'ln'))
 
-
+        ##############
         __slots__ = (
             'queue',
             '_trigger',
@@ -278,7 +278,7 @@ class Monitor:
         def file(self):
             return self._file
 
-
+        ##############
         async def __anext__(self):
             ''' async block until the queue produces a line that activates the trigger.
             '''
@@ -295,8 +295,10 @@ class Monitor:
             return self
 
         async def __call__(self):
-            ''' Prompter object is an async function '''
+            ''' Prompter object is a coroutine'''
             return await self.__anext__()
+
+        ##############
 
 
 #----------------------------------------------------------------------------------------------#
