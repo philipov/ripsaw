@@ -1,11 +1,9 @@
 # ripsaw 0.0.7
-cut logs into bits
-
----
 
 Ripsaw is a log monitoring framework that allows the the user to create a script containing decorated coroutines that define event handlers bound to trigger conditions. 
 When ran, the monitor will watch a directory for files matching a glob pattern, and follows any files it finds line-by-line searching for trigger conditions. When a trigger activates, its event handler is prompted to react to the event. 
 
+---
 ```python
 # monitor.py
 from ripsaw import Monitor, Regex
@@ -33,6 +31,7 @@ if __name__ == "__main__":
     monitor.run()
 ```
 
+---
 ### getting started
 * install module: `pip install ripsaw` 
 * blank script: `python -m ripsaw.new monitor.py`
@@ -45,6 +44,7 @@ if __name__ == "__main__":
 * publish: `sh\publish_pypi.bat`
 * clean: `sh\clean.bat`
 
+---
 ### package contents
 * Monitor
     * Monitor.event
