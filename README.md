@@ -11,7 +11,13 @@ When ran, the monitor will watch a directory for files matching a glob pattern, 
 * blank script: `python -m ripsaw.new monitor.py`
 * start monitor: `python monitor.py`
 
-##### example:
+###### dev
+* scratch: `python docs\monitor.py`
+* test: `sh\test.bat`  
+* build: `sh\build.bat`
+* publish: `sh\publish_pypi.bat`
+* clean: `sh\clean.bat`
+
 ```python
 # monitor.py
 from ripsaw import Monitor, Regex
@@ -39,7 +45,7 @@ if __name__ == "__main__":
     monitor.run()
 ```
 
-### classes
+### package contents
 * Monitor
     * Monitor.event
     * Monitor.watcher
@@ -59,13 +65,13 @@ if __name__ == "__main__":
 
 ^ = todo
 
-### features
+##### features
 * watch a directory for files matching a glob pattern
 * when a new file appears, follow it scanning for lines to push to a queue
 * prompters watch the queue until a trigger activates and send out an event
 * handler coroutines defined for each trigger implement how to react to events
 
-### todo
+##### todo
 * statefile keeps track of scanned portion of file across restart
 * save logfile
 * gracefully cancel tasks if file is deleted during monitoring
@@ -76,12 +82,5 @@ if __name__ == "__main__":
 * multiline triggers
 * recursive directory watch
 * non-daemon mode
-
-### dev
-* work: `python tests\data\monitor.py`
-* test: `sh\test.bat`  
-* build: `sh\build.bat`
-* publish: `sh\publish_pypi.bat`
-* clean: `sh\clean.bat`
 
 ---
