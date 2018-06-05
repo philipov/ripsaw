@@ -6,6 +6,9 @@
 ### logging / color
 from powertools import AutoLogger
 log = AutoLogger()
+log.remove_all()
+log.add_stdout()
+
 from powertools import term
 term.init_color()
 log.print('    ', term.pink('----'), ' ', term.yellow('ripsaw monitor'), ' ', term.pink('----'))

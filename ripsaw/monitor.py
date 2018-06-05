@@ -13,6 +13,7 @@
 ### logging / color
 from powertools import AutoLogger
 log = AutoLogger()
+
 from powertools import term
 from pprint import pformat
 
