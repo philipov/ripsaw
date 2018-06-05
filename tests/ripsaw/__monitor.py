@@ -10,12 +10,12 @@ from powertools import term
 term.init_color()
 log.print('    ', term.pink('----'), ' ', term.yellow('ripsaw monitor'), ' ', term.pink('----'))
 
-### imports
-import pytest
 
 #----------------------------------------------------------------------------------------------#
+#   TEST CASE 1
+
 def test__monitor():
-    ''' import test
+    ''' null test
     '''
     from ripsaw import Monitor
 
@@ -23,14 +23,17 @@ def test__monitor():
 
 
 #----------------------------------------------------------------------------------------------#
-def make_monitor(event_count):
-    ''' create a monitor with event handlers for testing using included sample logs'''
+#   TEST CASE 2
+
+def make_monitor(directory, event_count):
+    ''' create a monitor with event handlers that count the number of times they're called
+    '''
     import re
     from pathlib import Path
     from ripsaw import Monitor, Regex, And, Or
 
     monitor = Monitor(
-        target          = Path(__file__).resolve().parents[1] / 'data',
+        target          = directory,
         pattern         = '*.log',
         dir_interval    = 0.5
     )
@@ -67,29 +70,52 @@ def make_monitor(event_count):
     return monitor
 
 #################################################################################
-async def tester(monitor):
-    ''' replaces the launcher task
-        instead of waiting for a signal, just wait a given time before cancelling
-    '''
-    import curio
+class TestTimeout(Exception):
+        '''didn't finish reading test files before timeout'''
 
-    watcher = await curio.spawn(monitor.watcher)
-    watcher:curio.Task
-
-    await curio.sleep(5)
-    await watcher.cancel()
-
-#################################################################################
-def test__watcher():
+def test__watcher(path_testdata, path_log1, path_log2):
     ''' event handlers count how many times they got called during the test
     '''
     import curio
     from collections import Counter
+    from ripsaw import Monitor
+
+    ######################
+    async def tester(monitor:Monitor, goal):
+        ''' replace the launcher task
+        '''
+        watcher = await curio.spawn(monitor.watcher)
+        watcher:curio.Task
+
+        await until_test_finished(monitor, goal)
+        await watcher.cancel()
+
+    ######################
+    async def until_test_finished(monitor:Monitor, goal):
+        ''' wait until the scancount reaches the goal state
+            a TestTimeout is raised if the read isn't complete in 10 seconds
+        '''
+        duration = 0.0
+        while True:
+            if monitor.scannedcount == goal :
+                break
+            elif duration > 10.0:
+                raise TestTimeout(monitor.scannedcount)
+            else:
+                await curio.sleep(0.1)
+                duration += 0.1
+
+    ######################
 
     event_count = Counter()
-    monitor     = make_monitor(event_count)
+    monitor0    = make_monitor(path_testdata, event_count)
 
-    curio.run(tester(monitor))
+    goal = {
+        path_log1:  7,
+        path_log2:  7
+    }
+
+    curio.run(tester(monitor0, goal))
 
     log.print(event_count)
     assert event_count['aoeu']  == 3
