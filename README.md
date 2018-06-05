@@ -1,6 +1,6 @@
 # ripsaw 0.0.7
 
-Ripsaw is a log monitoring framework that allows the the user to create a script containing decorated coroutines that define event handlers bound to trigger conditions. 
+Ripsaw is a log monitoring framework that allows the user to create a script containing decorated coroutines that define event handlers bound to trigger conditions. 
 When ran, the monitor will watch a directory for files matching a glob pattern, and follows any files it finds line-by-line searching for trigger conditions. When a trigger activates, its event handler is prompted to react to the event. 
 
 ---
