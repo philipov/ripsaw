@@ -17,7 +17,6 @@ secrets
 pip.ini
 
 logs/
-*.log
 
 .ipynb_checkpoints
 
