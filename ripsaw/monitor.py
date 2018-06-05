@@ -8,7 +8,6 @@
     Monitor.follower task
     Monitor.Prompter async iterator
     Monitor.Prompter.Event datatype
-
 """
 
 ### logging / color
@@ -27,7 +26,7 @@ from functools import namedtuple
 
 from .trigger import Trigger, Regex
 
-### type annotation categories
+### type annotations
 patternlike = (tuple, str)
 triggerlike = (Trigger, str)
 number      = (int, float)
@@ -35,12 +34,19 @@ number      = (int, float)
 #----------------------------------------------------------------------------------------------#
 
 class Monitor:
-    ''' A class to encapsulate an instance of the application.
-        A user wishing to modify the application should subclass Monitor
-            override just the pieces they wish to extend,
-            and the rest of the system will use it
+    ''' --- An instance of a monitor watches multiple files inside a single directory.
+        This class encapsulates the application components for easy extensibility by subclassing.
+
+        1) The user first creates an instance of monitor and provides its init parameters.
+        2) A monitor object's event method is a decorator that is used to bind event handlers to triggers.
+        3) The run method starts the launcher task, which facilitates termination by signal.
+        4) The launcher task creates a single watcher task to monitor a directory for files matching the pattern.
+        5) When files are found, follower tasks are created to read them, and send lines to prompter queues.
+        6} When a prompter finds a line that activates a trigger, the bound handler is sent the event details.
+
     '''
 
+    ### Exceptions
     class DuplicateTrigger(Exception):
         ''' attempted to add an event handler for the same trigger twice
         '''
@@ -63,7 +69,7 @@ class Monitor:
                     dir_interval:        number = 5,
                     file_interval:       number = 5,
         ):
-        ''' an instance of a monitor watches multiple files inside a single directory
+        ''' provide configuration variables for the application using the init arguments
         '''
 
         ### private state
@@ -113,7 +119,7 @@ class Monitor:
                 *,
                 name:       str = None,
         ):
-        ''' decorator to register a new event handler and trigger
+        ''' decorator binds an event handler to a trigger
         '''
 
         ### strings default to regex patterns
@@ -160,15 +166,15 @@ class Monitor:
         '''
         curio.run( self.launcher() )
 
+
     ######################
     async def launcher(self):
         ''' -- the root task
             start a watcher, then waits for a shutdown signal
         '''
+        watcher     = await curio.spawn(self.watcher)
 
-        watcher = await curio.spawn(self.watcher)
-
-        shutdown = curio.SignalEvent(signal.SIGINT, signal.SIGTERM)
+        shutdown    = curio.SignalEvent(signal.SIGINT, signal.SIGTERM)
         await shutdown.wait()
         raise SystemExit()
 
@@ -176,7 +182,7 @@ class Monitor:
     ######################
     async def watcher( self ):
         ''' -- monitor a directory
-            watch a directory for files matching a pattern
+            watch a directory for files matching pattern
             spawn follower tasks when new files are found
         '''
         log.print(term.pink("begin watching for new files..."))
@@ -250,11 +256,12 @@ class Monitor:
     class Prompter:
         ''' -- read the queue and wait until the trigger fires
             used by the follower task to subscribe its event handlers to line updates
-            asynchronous Iterator; may be directly called to get next
+            Asynchronous Iterator; may be called as coroutine
             there is no way to reach StopAsyncIteration at the moment
         '''
 
-        Event = namedtuple('Event', ('match', 'line', 'ln'))
+        ### datatype to send event details back to handler
+        Event = namedtuple('Event', ('ln', 'line', 'match'))
 
         ##############
         __slots__ = (
@@ -287,7 +294,7 @@ class Monitor:
                 (line, ln)  = await self.queue.get()
                 match       = self.trigger.check(line)
                 if match is not None:
-                    return self.Event(match, line, ln)
+                    return self.Event(ln, line, match)
 
             raise StopAsyncIteration
 
@@ -297,7 +304,10 @@ class Monitor:
 
         async def __call__(self):
             ''' Prompter object is a coroutine'''
-            return await self.__anext__()
+            try:
+                return await self.__anext__()
+            except StopAsyncIteration:
+                raise # do what
 
         ##############
 

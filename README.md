@@ -38,8 +38,10 @@ if __name__ == "__main__":
 * start monitor: `python monitor.py`
 
 ### dev
-* example: `python docs\monitor.py`
-* test: `sh\test.bat`  
+* test: 
+    * `sh\test.bat`
+    * `sh/test.sh`
+* example: `python docs\monitor.py`  
 * build: `sh\build.bat`
 * publish: `sh\publish_pypi.bat`
 * clean: `sh\clean.bat`
