@@ -92,6 +92,11 @@ class Monitor:
     ######################
 
     @property
+    def scannedcount(self) -> dict:
+        return self._scannedcount
+
+
+    @property
     def target(self) -> Path:
         return self._target
 
