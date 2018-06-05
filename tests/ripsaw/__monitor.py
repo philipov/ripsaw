@@ -29,7 +29,6 @@ def make_monitor(directory, event_count):
     ''' create a monitor with event handlers that count the number of times they're called
     '''
     import re
-    from pathlib import Path
     from ripsaw import Monitor, Regex, And, Or
 
     monitor = Monitor(
@@ -97,7 +96,7 @@ def test__watcher(path_testdata, path_log1, path_log2):
         '''
         duration = 0.0
         while True:
-            if monitor.scannedcount == goal :
+            if all( monitor.scannedcount.get(file, -1) >= goal[file] for file in goal):
                 break
             elif duration > 10.0:
                 raise TestTimeout(monitor.scannedcount)
