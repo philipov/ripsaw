@@ -30,8 +30,9 @@ def make_monitor(event_count):
     from ripsaw import Monitor, Regex, And, Or
 
     monitor = Monitor(
-        target      = Path(__file__).resolve().parents[1] / 'data',
-        pattern     = '*.log',
+        target          = Path(__file__).resolve().parents[1] / 'data',
+        pattern         = '*.log',
+        dir_interval    = 0.5
     )
 
     ######################

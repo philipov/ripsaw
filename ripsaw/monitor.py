@@ -30,6 +30,7 @@ from .trigger import Trigger, Regex
 ### type annotation categories
 patternlike = (tuple, str)
 triggerlike = (Trigger, str)
+number      = (int, float)
 
 #----------------------------------------------------------------------------------------------#
 
@@ -49,8 +50,8 @@ class Monitor:
         '_target',
         '_pattern',
         '_savepath',
-        '_interval_scandir',
-        '_interval_scanfile',
+        '_dir_interval',
+        '_file_interval',
 
         '_events',
         '_scannedcount',
@@ -59,8 +60,8 @@ class Monitor:
                     target:                Path = Path('.'),
                     pattern:        patternlike = '*.log',
                     savepath:              Path = None,
-                    interval_scandir:       int = 5,
-                    interval_scanfile:      int = 5,
+                    dir_interval:        number = 5,
+                    file_interval:       number = 5,
         ):
         ''' an instance of a monitor watches multiple files inside a single directory
         '''
@@ -73,14 +74,14 @@ class Monitor:
         self._target            = target
         self._pattern           = pattern
         self._savepath          = savepath
-        self._interval_scandir  = interval_scandir
-        self._interval_scanfile = interval_scanfile
+        self._dir_interval      = dir_interval
+        self._file_interval     = file_interval
 
-        log.print(f'{term.white("new monitor on:     ")} {self.target}')
+        log.print(f'{term.white("new monitor on:")}      {self.target}')
         log.print(f'{term.white("file pattern:")}        {self.pattern}')
         log.print(f'{term.white("savepath:")}            {self.savepath}')
-        log.print(f'{term.white("dir scan interval:")}   {self.interval_scandir}' )
-        log.print(f'{term.white("file scan interval:")}  {self.interval_scandir}' )
+        log.print(f'{term.white("dir scan interval:")}   {self.dir_interval}' )
+        log.print(f'{term.white("file scan interval:")}  {self.file_interval}' )
 
     ######################
 
@@ -97,12 +98,12 @@ class Monitor:
         return self._savepath
 
     @property
-    def interval_scandir( self ) -> int:
-        return self._interval_scandir
+    def dir_interval( self ) -> int:
+        return self._dir_interval
 
     @property
-    def interval_scanfile( self ) -> int:
-        return self._interval_scanfile
+    def file_interval( self ) -> int:
+        return self._file_interval
 
 
     #-------------------------------------------------------------------#
@@ -112,7 +113,7 @@ class Monitor:
                 *,
                 name:       str = None,
         ):
-        ''' decorator to register a new event for a trigger
+        ''' decorator to register a new event handler and trigger
         '''
 
         ### strings default to regex patterns
@@ -201,7 +202,7 @@ class Monitor:
                     term.pink('scanned count:'), f' \n',
                     pformat({file.name: count for file, count in self._scannedcount.items()})
                 )
-                await curio.sleep( self.interval_scandir )
+                await curio.sleep( self.dir_interval )
 
 
     ######################
