@@ -52,6 +52,10 @@ class Monitor:
         ''' attempted to add an event handler for the same trigger twice
         '''
 
+    class RunTimeout(Exception):
+        ''' wait timeout reached
+        '''
+
     ######################
     __slots__ = (
         '_target',
@@ -167,22 +171,41 @@ class Monitor:
 
     #-------------------------------------------------------------------#
 
-    def run(self):
+    def run(self, timeout:number=None):
         ''' start the application
         '''
-        curio.run( self.launcher() )
+        curio.run( self.launcher(timeout=timeout) )
 
 
     ######################
-    async def launcher(self):
+    async def launcher(self, timeout=None):
         ''' -- the root task
             start a watcher, then waits for a shutdown signal
         '''
-        watcher     = await curio.spawn(self.watcher)
+        watcher:curio.Task = await curio.spawn(self.watcher)
 
+        await self.wait(timeout)
+
+        log.print(f'Monitor shutting down')
+        await watcher.cancel()
+
+
+    @staticmethod
+    async def wait(timeout=None):
+        duration    = 0.0
+        increment   = 0.01
         shutdown    = curio.SignalEvent(signal.SIGINT, signal.SIGTERM)
-        await shutdown.wait()
-        raise SystemExit()
+
+        if timeout is None:
+            shutdown.wait()
+        else:
+            while True:
+                if shutdown.is_set():
+                    return
+                if duration > timeout:
+                    return
+                await curio.sleep(increment)
+                duration   += increment
 
 
     ######################
@@ -257,7 +280,6 @@ class Monitor:
                         for trigger, queue in queues.items():
                             await queue.put((line, self._scannedcount[file]))
 
-
     ######################
     class Prompter:
         ''' -- read the queue and wait until the trigger fires
@@ -295,13 +317,13 @@ class Monitor:
         ##############
         async def __anext__(self):
             ''' async block until the queue produces a line that activates the trigger.
+                never reaches stop iteration
             '''
             while True:
                 (line, ln)  = await self.queue.get()
                 match       = self.trigger.check(line)
                 if match is not None:
                     return self.Event(ln, line, match)
-
             raise StopAsyncIteration
 
         def __aiter__(self):
